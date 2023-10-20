@@ -48,20 +48,46 @@ async function run() {
       res.send(result);
     });
 
-    app.delete('/mycart/:id', async(req, res) => {
+    app.put("/updateproduct/:id", async (req, res) => {
+      const id = req.params.id;
+      const productInfo = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedProduct = {
+        $set: {
+          name: productInfo.name,
+          brand: productInfo.brand,
+          description: productInfo.description,
+          photoUrl: productInfo.photoUrl,
+          price: productInfo.price,
+          productType: productInfo.productType,
+          rating: productInfo.rating,
+          sku: productInfo.sku,
+          warranty: productInfo.warranty,
+        },
+      };
+
+      const result = await productsCollection.updateOne(
+        filter,
+        updatedProduct,
+        options
+      );
+      res.send(result);
+    });
+
+    app.delete("/mycart/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await myCartCollection.deleteOne(query);
       res.send(result);
-      
-    })
+    });
 
     // my cart api
-    app.get("/myCart", async( req, res) => {
+    app.get("/myCart", async (req, res) => {
       const cursor = myCartCollection.find();
       const result = await cursor.toArray();
       res.send(result);
-    })
+    });
 
     app.post("/myCart", async (req, res) => {
       const myCart = req.body;
